@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: ./build.sh test
+      - name: Build
+        run: ./build.sh
+      - name: Package
+        run: ditto -c -k --keepParent build/MarkdownPreview.app build/MarkdownPreview.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarkdownPreview
+          path: build/MarkdownPreview.zip
