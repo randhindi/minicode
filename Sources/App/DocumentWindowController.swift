@@ -38,7 +38,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         config.userContentController.addUserScript(WKUserScript(source: PageScript.source, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         webView = WKWebView(frame: .zero, configuration: config)
 
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 980, height: 760),
+        let window = NSWindow(contentRect: NSRect(origin: .zero, size: Self.defaultContentSize),
                               styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                               backing: .buffered, defer: false)
         window.minSize = NSSize(width: 420, height: 300)
@@ -65,7 +65,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         splitController.splitView.isVertical = true
         splitController.splitView.dividerStyle = .thin
         window.contentViewController = splitController
-        window.setContentSize(NSSize(width: 980, height: 760))
+        window.setContentSize(Self.defaultContentSize)
         window.center() // first launch; afterwards the saved frame below wins
 
         let toolbar = NSToolbar(identifier: "main")
@@ -84,6 +84,12 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
     }
 
     required init?(coder: NSCoder) { fatalError() }
+
+    /// New windows: 1100pt wide, and most of the screen's height (capped at 1200pt).
+    private static var defaultContentSize: NSSize {
+        let screen = NSScreen.main?.visibleFrame.size ?? NSSize(width: 1440, height: 900)
+        return NSSize(width: min(1100, screen.width - 40), height: min(1200, (screen.height * 0.85).rounded()))
+    }
 
     // MARK: - Editor
 
