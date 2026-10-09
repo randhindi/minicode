@@ -15,8 +15,8 @@ jobs:
       - name: Build
         run: ./build.sh
       - name: Package
-        run: ditto -c -k --keepParent build/MarkdownPreview.app build/MarkdownPreview.zip
+        run: ditto -c -k --keepParent build/Minicode.app build/Minicode.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: MarkdownPreview
-          path: build/MarkdownPreview.zip
+          name: Minicode
+          path: build/Minicode.zip

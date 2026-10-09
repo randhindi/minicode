@@ -31,7 +31,7 @@ enum MathRenderer {
         lock.lock(); defer { lock.unlock() }
         if !loaded {
             loaded = true
-            let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "MarkdownPreview", category: "math")
+            let log = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Minicode", category: "math")
             if let url = scriptURL, let js = try? String(contentsOf: url, encoding: .utf8), let ctx = JSContext() {
                 ctx.exceptionHandler = { _, e in log.error("katex js error: \(e?.toString() ?? "?", privacy: .public)") }
                 ctx.evaluateScript(js)

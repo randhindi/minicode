@@ -1,0 +1,2 @@
+just some plain notes
+with a very long line that should wrap rather than scroll horizontally because plain text has no syntax and is usually prose written by a person.

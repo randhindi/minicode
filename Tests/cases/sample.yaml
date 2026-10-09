@@ -1,0 +1,15 @@
+# CI config
+name: Build
+on:
+  push:
+    branches: [main]
+defaults: &defaults
+  runs-on: macos-15
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./build.sh test
+        timeout-minutes: 10
+        continue-on-error: false

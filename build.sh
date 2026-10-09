@@ -1,26 +1,26 @@
 #!/bin/bash
-# Builds Markdown Preview (app + Quick Look extension) with only the Xcode
+# Builds Minicode (app + Quick Look extension) with only the Xcode
 # Command Line Tools; Xcode itself isn't required.
 #
-#   ./build.sh               build build/MarkdownPreview.app
+#   ./build.sh               build build/Minicode.app
 #   ./build.sh install       build, install to ~/Applications and register
 #   ./build.sh uninstall     remove the installed app
-#   ./build.sh test          render Tests/*.md and compare with the expected HTML
+#   ./build.sh test          render Tests/cases/* and compare with Tests/expected/
 #   ./build.sh test --update rewrite the expected HTML
 #   ./build.sh render FILE   print the rendered HTML for FILE
 #   ./build.sh icon          regenerate Resources/AppIcon.icns
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION=1.0.0
+VERSION=1.1.0
 BUILD_NUMBER=1
-BUNDLE_ID="${BUNDLE_ID:-io.github.randhindi.MarkdownPreview}"
+BUNDLE_ID="${BUNDLE_ID:-io.github.randhindi.Minicode}"
 MIN_MACOS=12.0
 
 OUT=build
-APP=$OUT/MarkdownPreview.app
-EXT=$APP/Contents/PlugIns/MarkdownPreviewExtension.appex
-DEST="$HOME/Applications/MarkdownPreview.app"
+APP=$OUT/Minicode.app
+EXT=$APP/Contents/PlugIns/MinicodeQuickLook.appex
+DEST="$HOME/Applications/Minicode.app"
 KATEX=Resources/katex/katex.min.js
 mkdir -p "$OUT"
 
@@ -52,14 +52,14 @@ build_app() {
   mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$EXT/Contents/MacOS"
 
   for arch in arm64 x86_64; do
-    swiftc $(swift_flags) -target "$arch-apple-macos$MIN_MACOS" -module-name MarkdownPreviewExtension \
+    swiftc $(swift_flags) -target "$arch-apple-macos$MIN_MACOS" -module-name MinicodeQuickLook \
       -application-extension -Xlinker -e -Xlinker _NSExtensionMain -framework QuickLookUI \
       Sources/Extension/*.swift Sources/Shared/*.swift -o "$OUT/ext-$arch"
-    swiftc $(swift_flags) -target "$arch-apple-macos$MIN_MACOS" -module-name MarkdownPreview \
+    swiftc $(swift_flags) -target "$arch-apple-macos$MIN_MACOS" -module-name Minicode \
       Sources/App/*.swift Sources/Shared/*.swift -o "$OUT/app-$arch"
   done
-  lipo -create "$OUT"/ext-arm64 "$OUT"/ext-x86_64 -output "$EXT/Contents/MacOS/MarkdownPreviewExtension"
-  lipo -create "$OUT"/app-arm64 "$OUT"/app-x86_64 -output "$APP/Contents/MacOS/MarkdownPreview"
+  lipo -create "$OUT"/ext-arm64 "$OUT"/ext-x86_64 -output "$EXT/Contents/MacOS/MinicodeQuickLook"
+  lipo -create "$OUT"/app-arm64 "$OUT"/app-x86_64 -output "$APP/Contents/MacOS/Minicode"
   rm -f "$OUT"/ext-* "$OUT"/app-*
 
   cp Resources/App-Info.plist "$APP/Contents/Info.plist"
@@ -86,7 +86,7 @@ install_app() {
   rm -rf "$DEST"
   cp -R "$APP" "$DEST"
   /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f -R "$DEST"
-  pluginkit -a "$DEST/Contents/PlugIns/MarkdownPreviewExtension.appex"
+  pluginkit -a "$DEST/Contents/PlugIns/MinicodeQuickLook.appex"
   pluginkit -e use -i "$BUNDLE_ID.QuickLook"
   qlmanage -r >/dev/null 2>&1 || true
   qlmanage -r cache >/dev/null 2>&1 || true
@@ -94,7 +94,7 @@ install_app() {
 }
 
 uninstall_app() {
-  pkill -f "$DEST/Contents/MacOS/MarkdownPreview" 2>/dev/null || true
+  pkill -f "$DEST/Contents/MacOS/Minicode" 2>/dev/null || true
   [[ -d "$DEST" ]] && /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -u "$DEST" || true
   rm -rf "$DEST"
   qlmanage -r >/dev/null 2>&1 || true
@@ -104,17 +104,19 @@ uninstall_app() {
 run_tests() {
   build_render_tool
   local failed=0
-  for md in Tests/*.md; do
-    local expected="${md%.md}.expected.html" actual="$OUT/${md##*/}.html"
-    KATEX=$KATEX "$OUT/render" "$md" > "$actual"
+  for input in Tests/cases/*; do
+    local name; name=$(basename "$input")
+    local expected="Tests/expected/$name.html" actual="$OUT/test-$name.html"
+    KATEX=$KATEX "$OUT/render" "$input" > "$actual"
     if [[ "${1:-}" == "--update" ]]; then
-      cp "$actual" "$expected"; echo "updated $expected"
+      cp "$actual" "$expected"
     elif diff -u "$expected" "$actual" > "$OUT/test.diff"; then
-      echo "ok   $md"
+      echo "ok   $name"
     else
-      echo "FAIL $md"; cat "$OUT/test.diff"; failed=1
+      echo "FAIL $name"; cat "$OUT/test.diff"; failed=1
     fi
   done
+  [[ "${1:-}" == "--update" ]] && echo "Updated Tests/expected/"
   return $failed
 }
 

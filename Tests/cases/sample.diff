@@ -1,0 +1,9 @@
+diff --git a/build.sh b/build.sh
+index 1a2b3c4..5d6e7f8 100755
+--- a/build.sh
++++ b/build.sh
+@@ -1,4 +1,4 @@
+ #!/bin/bash
+-VERSION=1.0.0
++VERSION=1.1.0
+ BUILD_NUMBER=1

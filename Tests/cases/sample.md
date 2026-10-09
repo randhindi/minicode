@@ -2,7 +2,7 @@
 title: Front matter is hidden
 ---
 
-# Markdown Preview
+# Minicode
 
 A **lightweight** Quick Look extension with *zero* dependencies. It handles `inline code`,
 ~~strikethrough~~, [links](https://example.com "Example"), autolinks like <https://apple.com>,

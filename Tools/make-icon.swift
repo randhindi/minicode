@@ -1,4 +1,4 @@
-// Draws the app icon and writes Resources/AppIcon.icns.
+// Draws the Minicode app icon and writes Resources/AppIcon.icns (and a 1024px PNG next to it).
 // Usage: swiftc Tools/make-icon.swift -o build/make-icon && build/make-icon Resources/AppIcon.icns
 import AppKit
 
@@ -50,29 +50,24 @@ func drawIcon() {
     corner.close()
     color(0xD9CCFF).setFill(); corner.fill()
 
-    // The Markdown mark: "M↓" in a rounded frame.
+    // The mark: a bold "</>".
     let ink = color(0x24135F)
-    let frame = NSBezierPath(roundedRect: NSRect(x: 322, y: 470, width: 380, height: 230), xRadius: 34, yRadius: 34)
-    frame.lineWidth = 26; ink.setStroke(); frame.stroke()
+    let chevrons = NSBezierPath()
+    chevrons.move(to: NSPoint(x: 405, y: 680)); chevrons.line(to: NSPoint(x: 330, y: 590)); chevrons.line(to: NSPoint(x: 405, y: 500))
+    chevrons.move(to: NSPoint(x: 619, y: 680)); chevrons.line(to: NSPoint(x: 694, y: 590)); chevrons.line(to: NSPoint(x: 619, y: 500))
+    chevrons.lineWidth = 46; chevrons.lineCapStyle = .round; chevrons.lineJoinStyle = .round
+    ink.setStroke(); chevrons.stroke()
+    let slash = NSBezierPath()
+    slash.move(to: NSPoint(x: 552, y: 700)); slash.line(to: NSPoint(x: 472, y: 480))
+    slash.lineWidth = 42; slash.lineCapStyle = .round
+    color(0x6D4AFF).setStroke(); slash.stroke()
 
-    let m = NSBezierPath()
-    m.move(to: NSPoint(x: 377, y: 525)); m.line(to: NSPoint(x: 377, y: 645))
-    m.line(to: NSPoint(x: 432, y: 585)); m.line(to: NSPoint(x: 487, y: 645)); m.line(to: NSPoint(x: 487, y: 525))
-    m.lineWidth = 30; m.lineJoinStyle = .round; m.lineCapStyle = .round; m.stroke()
-
-    let shaft = NSBezierPath()
-    shaft.move(to: NSPoint(x: 600, y: 645)); shaft.line(to: NSPoint(x: 600, y: 575))
-    shaft.lineWidth = 30; shaft.lineCapStyle = .round; shaft.stroke()
-    let head = NSBezierPath()
-    head.move(to: NSPoint(x: 548, y: 590)); head.line(to: NSPoint(x: 652, y: 590)); head.line(to: NSPoint(x: 600, y: 520)); head.close()
-    head.lineWidth = 10; head.lineJoinStyle = .round
-    ink.setFill(); head.fill(); head.stroke()
-
-    // A few lines of "rendered text".
-    for (i, width) in [380, 310, 350, 240].enumerated() {
+    // A few lines of "code", indented and tinted like highlighted syntax.
+    let lines: [(CGFloat, CGFloat, UInt32)] = [(0, 230, 0xB9A6FF), (44, 290, 0xE3E0F0), (44, 190, 0xFFC9C4), (0, 120, 0xE3E0F0)]
+    for (i, (indent, width, tint)) in lines.enumerated() {
         let y = 395 - CGFloat(i) * 52
-        let bar = NSBezierPath(roundedRect: NSRect(x: 322, y: y, width: CGFloat(width), height: 24), xRadius: 12, yRadius: 12)
-        (i == 0 ? color(0xB9A6FF) : color(0xE3E0F0)).setFill(); bar.fill()
+        let bar = NSBezierPath(roundedRect: NSRect(x: 322 + indent, y: y, width: width, height: 24), xRadius: 12, yRadius: 12)
+        color(tint).setFill(); bar.fill()
     }
 }
 

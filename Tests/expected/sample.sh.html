@@ -1,7 +1,7 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
 <meta name="color-scheme" content="light dark">
-<title>sample.md</title>
+<title>sample.sh</title>
 <style>:root{--fg:#1f2328;--muted:#59636e;--bg:#fff;--border:#d1d9e0;--border-muted:#d1d9e0b3;--subtle:#f6f8fa;
 --neutral:#818b981f;--link:#0969da;
 --pl-c:#59636e;--pl-k:#cf222e;--pl-s:#0a3069;--pl-c1:#0550ae;--pl-e:#6639ba;--pl-v:#953800;--pl-ent:#0550ae;
@@ -70,7 +70,7 @@ box-shadow:inset 0 -1px 0 var(--border-muted)}
 .markdown-body .katex-error{color:var(--caution)}
 .markdown-body .pl-c{color:var(--pl-c)}.markdown-body .pl-k{color:var(--pl-k)}.markdown-body .pl-s{color:var(--pl-s)}
 .markdown-body .pl-c1{color:var(--pl-c1)}.markdown-body .pl-e{color:var(--pl-e)}.markdown-body .pl-v{color:var(--pl-v)}
-.markdown-body .pl-ent{color:var(--pl-ent)}
+.markdown-body .pl-ent{color:var(--pl-ent)}.markdown-body .pl-en{color:var(--pl-e)}
 .markdown-body .pl-mi1{color:var(--pl-mi);background-color:var(--pl-mi-bg)}
 .markdown-body .pl-md{color:var(--pl-md);background-color:var(--pl-md-bg)}
 .markdown-body .markdown-alert{padding:.5rem 1rem;margin-bottom:16px;color:inherit;border-left:.25em solid var(--a)}
@@ -80,84 +80,44 @@ box-shadow:inset 0 -1px 0 var(--border-muted)}
 .markdown-body .markdown-alert .octicon{margin-right:.5rem;display:inline-block;overflow:visible!important;vertical-align:text-bottom;fill:currentColor}
 .markdown-body .markdown-alert-note{--a:var(--note)}.markdown-body .markdown-alert-tip{--a:var(--tip)}
 .markdown-body .markdown-alert-important{--a:var(--important)}.markdown-body .markdown-alert-warning{--a:var(--warning)}
-.markdown-body .markdown-alert-caution{--a:var(--caution)}</style>
-</head><body><article class="markdown-body">
-<h1 id="markdown-preview">Markdown Preview</h1>
-<p>A <strong>lightweight</strong> Quick Look extension with <em>zero</em> dependencies. It handles <code>inline code</code>,
-<del>strikethrough</del>, <a href="https://example.com" title="Example">links</a>, autolinks like <a href="https://apple.com">https://apple.com</a>,
-bare URLs such as <a href="https://github.com/foo_bar/baz_qux">https://github.com/foo_bar/baz_qux</a>, and snake_case_words without italics.
-Entities stay intact: &copy; 2026 &mdash; and a lone &amp; or &lt;3 is escaped.</p>
-<h2 id="setext-heading">Setext heading</h2>
-<h2 id="lists">Lists</h2>
-<ul>
-<li>First item</li>
-<li>Second item with <strong>bold</strong>
-<ul>
-<li>Nested item</li>
-<li>Another nested
-<ol>
-<li>Deep ordered</li>
-<li>Deeper</li>
-</ol></li>
-</ul></li>
-<li>Third item</li>
-</ul>
-<ol start="3">
-<li>Starts at three</li>
-<li>Four</li>
-</ol>
-<ul class="contains-task-list">
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled checked> Done task</li>
-<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled> Open task</li>
-</ul>
-<p>Loose list:</p>
-<ul>
-<li><p>Paragraph one</p></li>
-<li><p>Paragraph two
-continues here</p></li>
-</ul>
-<h2 id="code">Code</h2>
-<pre><code class="language-swift"><span class="pl-c">// Greets someone</span>
-<span class="pl-k">struct</span> <span class="pl-e">Greeter</span> {
-    <span class="pl-k">let</span> name: <span class="pl-e">String</span>
-    <span class="pl-k">func</span> greet() -&gt; <span class="pl-e">String</span> { <span class="pl-s">"Hello, \(name)! #\(42)"</span> }
-}</code></pre>
-<pre><code class="language-python"><span class="pl-k">def</span> fib(n: <span class="pl-e">int</span>) -&gt; <span class="pl-e">int</span>:
-    <span class="pl-s">"""Return the nth Fibonacci number."""</span>
-    <span class="pl-k">return</span> n <span class="pl-k">if</span> n &lt; <span class="pl-c1">2</span> <span class="pl-k">else</span> fib(n - <span class="pl-c1">1</span>) + fib(n - <span class="pl-c1">2</span>)  <span class="pl-c"># recursive</span></code></pre>
-<pre><code class="language-diff"><span class="pl-md">- old line</span>
-<span class="pl-mi1">+ new line</span></code></pre>
-<pre><code>indented code block</code></pre>
-<h2 id="tables">Tables</h2>
-<table>
-<thead><tr><th style="text-align:left">Name</th><th style="text-align:right">Size</th><th style="text-align:center">Notes</th></tr></thead>
-<tbody>
-<tr><td style="text-align:left"><code>a|b</code></td><td style="text-align:right">1.2 KB</td><td style="text-align:center">centered</td></tr>
-<tr><td style="text-align:left">beta</td><td style="text-align:right">42</td><td style="text-align:center"><strong>bold</strong></td></tr>
-</tbody>
-</table>
-<h2 id="quotes">Quotes</h2>
-<blockquote>
-<p>A blockquote with <em>emphasis</em>
-and a second line.</p>
-<blockquote>
-<p>Nested quote.</p>
-</blockquote>
-</blockquote>
-<div class="markdown-alert markdown-alert-warning"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
-<p>GitHub-style alerts work too.</p>
+.markdown-body .markdown-alert-caution{--a:var(--caution)}
+.code-page{box-sizing:border-box;padding:16px;color:var(--fg);
+font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif}
+.code-file{border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--bg)}
+.code-header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:8px 16px;font-size:12px;
+color:var(--muted);background:var(--subtle);border-bottom:1px solid var(--border)}
+.code-name{font-weight:600;color:var(--fg)}
+.code-scroll{overflow-x:auto}
+table.code{border-collapse:collapse;border-spacing:0;min-width:100%;tab-size:4;-moz-tab-size:4;
+font:12px/20px ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+table.code td{padding:0;border:0;vertical-align:top}
+table.code td.ln{width:1%;min-width:40px;padding:0 10px 0 16px;text-align:right;color:var(--muted);opacity:.7;
+white-space:nowrap;user-select:none;-webkit-user-select:none}
+table.code td.ln::before{content:attr(data-n)}
+table.code td.lc{padding:0 16px 0 10px;white-space:pre;color:var(--fg)}
+table.code.wrap td.lc{white-space:pre-wrap;word-break:break-word}
+table.code tr:first-child td{padding-top:8px}
+table.code tr:last-child td{padding-bottom:8px}
+.code-page .pl-c{color:var(--pl-c)}.code-page .pl-k{color:var(--pl-k)}.code-page .pl-s{color:var(--pl-s)}
+.code-page .pl-c1{color:var(--pl-c1)}.code-page .pl-en{color:var(--pl-e)}.code-page .pl-v{color:var(--pl-v)}
+.code-page .pl-ent{color:var(--pl-ent)}
+.code-page .pl-mi1{color:var(--pl-mi);background-color:var(--pl-mi-bg)}
+.code-page .pl-md{color:var(--pl-md);background-color:var(--pl-md-bg)}</style>
+</head><body><article class="code-page">
+<div class="code-file">
+<div class="code-header"><span class="code-name">sample.sh</span><span class="code-facts">11 lines · 251 bytes · Shell</span></div>
+<div class="code-scroll"><table class="code"><tbody>
+<tr><td class="ln" data-n="1"></td><td class="lc"><span class="pl-c">#!/usr/bin/env bash</span></td></tr>
+<tr><td class="ln" data-n="2"></td><td class="lc"><span class="pl-c1">set</span> -euo pipefail</td></tr>
+<tr><td class="ln" data-n="3"></td><td class="lc"><span class="pl-c"># Deploy the build</span></td></tr>
+<tr><td class="ln" data-n="4"></td><td class="lc"><span class="pl-v">TARGET</span>=<span class="pl-s">"${1:-staging}"</span></td></tr>
+<tr><td class="ln" data-n="5"></td><td class="lc"><span class="pl-en">deploy</span>() {</td></tr>
+<tr><td class="ln" data-n="6"></td><td class="lc">  <span class="pl-k">local</span> <span class="pl-v">dir</span>=<span class="pl-v">$HOME</span>/app</td></tr>
+<tr><td class="ln" data-n="7"></td><td class="lc">  <span class="pl-k">if</span> [[ -d <span class="pl-s">"$dir"</span> ]]; <span class="pl-k">then</span></td></tr>
+<tr><td class="ln" data-n="8"></td><td class="lc">    <span class="pl-c1">echo</span> <span class="pl-s">"Deploying to $TARGET from ${dir}"</span> | tee -a deploy.log</td></tr>
+<tr><td class="ln" data-n="9"></td><td class="lc">  <span class="pl-k">fi</span></td></tr>
+<tr><td class="ln" data-n="10"></td><td class="lc">}</td></tr>
+<tr><td class="ln" data-n="11"></td><td class="lc"><span class="pl-k">for</span> f <span class="pl-k">in</span> *.tar.gz; <span class="pl-k">do</span> deploy <span class="pl-s">"$f"</span>; <span class="pl-k">done</span></td></tr>
+</tbody></table></div>
 </div>
-<hr>
-<p><img src="https://example.com/img.png" alt="Alt text"> and a <a href="https://example.com/ref" title="Reference">reference link</a>.</p>
-<details><summary>Raw HTML</summary>Inline <kbd>⌘</kbd> + <kbd>Space</kbd></details>
-<p>Line ending with two spaces<br>
-forces a break. Escaped *stars* stay literal.</p>
-<h2 id="math">Math</h2>
-<p>Inline math like <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><mi>m</mi><msup><mi>c</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">E = mc^2</annotation></semantics></math></span> and <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><msub><mi>x</mi><mi>i</mi></msub></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{x_i}</annotation></semantics></math></span>, but prices like $5 and $10 stay text.</p>
-<div class="math-display"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>c</mi><mtext>  </mtext><mo>=</mo><mtext>  </mtext><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mfrac><msub><mi>ε</mi><mi>i</mi></msub><mn>2</mn></mfrac><mtext>  </mtext><mo>−</mo><mtext>  </mtext><mfrac><mi>q</mi><mrow><mn>4</mn><mi>N</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">c \;=\; \sum_{i=1}^{n} \frac{\varepsilon_i}{2} \;-\; \frac{q}{4N}</annotation></semantics></math></span></div>
-<div class="math-display"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>σ</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">S</mi></mrow><mn>2</mn></msubsup><mtext>  </mtext><mo>=</mo><mtext>  </mtext><mi>n</mi><mrow><mo fence="true">(</mo><mfrac><mn>1</mn><mrow><mn>24</mn><mtext> </mtext><msup><mi>q</mi><mn>2</mn></msup></mrow></mfrac><mo>+</mo><mfrac><mn>1</mn><mrow><mn>48</mn><mtext> </mtext><mo stretchy="false">(</mo><mn>2</mn><mi>N</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow></mfrac><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma^2_{\mathrm{MS}} \;=\; n\left(\frac{1}{24\,q^{2}} + \frac{1}{48\,(2N)^{2}}\right)</annotation></semantics></math></span></div>
-<p>Broken TeX shows inline: <span class="katex-error" title="ParseError: KaTeX parse error: Unexpected end of input in a macro argument, expected &#x27;}&#x27; at end of input: \frac{1}{" style="color:#cc0000">\frac{1}{</span>.</p>
-<div class="math-display"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mfrac><mn>1</mn><mn>12</mn></mfrac></mrow><annotation encoding="application/x-tex">\sigma^2 = \frac{1}{12}</annotation></semantics></math></span></div>
-<pre><code class="language-latex">\documentclass{article}
-\begin{document}Not math\end{document}</code></pre>
 </article></body></html>

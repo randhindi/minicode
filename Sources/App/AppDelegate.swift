@@ -28,8 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !UserDefaults.standard.bool(forKey: key), !isDefault else { return }
         UserDefaults.standard.set(true, forKey: key)
         let alert = NSAlert()
-        alert.messageText = "Open Markdown files with Markdown Preview?"
-        alert.informativeText = "You can change this later from the Markdown Preview menu."
+        alert.messageText = "Open Markdown files with Minicode?"
+        alert.informativeText = "Code files can be opened with Minicode from Finder's Open With menu. You can change this later from the Minicode menu."
         alert.addButton(withTitle: "Make Default")
         alert.addButton(withTitle: "Not Now")
         if alert.runModal() == .alertFirstButtonReturn { makeDefault(nil) }
@@ -46,7 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 enum MainMenu {
     static func make() -> NSMenu {
         let main = NSMenu()
-        let name = "Markdown Preview"
+        let name = "Minicode"
 
         main.addSubmenu(name, [
             item("About \(name)", #selector(NSApplication.orderFrontStandardAboutPanel(_:))),

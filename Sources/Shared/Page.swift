@@ -1,14 +1,16 @@
 import Foundation
 
 enum Page {
-    static func html(body: String, title: String) -> String {
+    enum Layout { case markdown, code }
+
+    static func html(body: String, title: String, layout: Layout = .markdown) -> String {
         """
         <!doctype html>
         <html><head><meta charset="utf-8">
         <meta name="color-scheme" content="light dark">
         <title>\(escapeHTML(title))</title>
         <style>\(css)</style>
-        </head><body><article class="markdown-body">
+        </head><body><article class="\(layout == .markdown ? "markdown-body" : "code-page")">
         \(body)</article></body></html>
         """
     }
@@ -92,7 +94,7 @@ enum Page {
     .markdown-body .katex-error{color:var(--caution)}
     .markdown-body .pl-c{color:var(--pl-c)}.markdown-body .pl-k{color:var(--pl-k)}.markdown-body .pl-s{color:var(--pl-s)}
     .markdown-body .pl-c1{color:var(--pl-c1)}.markdown-body .pl-e{color:var(--pl-e)}.markdown-body .pl-v{color:var(--pl-v)}
-    .markdown-body .pl-ent{color:var(--pl-ent)}
+    .markdown-body .pl-ent{color:var(--pl-ent)}.markdown-body .pl-en{color:var(--pl-e)}
     .markdown-body .pl-mi1{color:var(--pl-mi);background-color:var(--pl-mi-bg)}
     .markdown-body .pl-md{color:var(--pl-md);background-color:var(--pl-md-bg)}
     .markdown-body .markdown-alert{padding:.5rem 1rem;margin-bottom:16px;color:inherit;border-left:.25em solid var(--a)}
@@ -103,5 +105,27 @@ enum Page {
     .markdown-body .markdown-alert-note{--a:var(--note)}.markdown-body .markdown-alert-tip{--a:var(--tip)}
     .markdown-body .markdown-alert-important{--a:var(--important)}.markdown-body .markdown-alert-warning{--a:var(--warning)}
     .markdown-body .markdown-alert-caution{--a:var(--caution)}
+    .code-page{box-sizing:border-box;padding:16px;color:var(--fg);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif}
+    .code-file{border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--bg)}
+    .code-header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;padding:8px 16px;font-size:12px;
+    color:var(--muted);background:var(--subtle);border-bottom:1px solid var(--border)}
+    .code-name{font-weight:600;color:var(--fg)}
+    .code-scroll{overflow-x:auto}
+    table.code{border-collapse:collapse;border-spacing:0;min-width:100%;tab-size:4;-moz-tab-size:4;
+    font:12px/20px ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+    table.code td{padding:0;border:0;vertical-align:top}
+    table.code td.ln{width:1%;min-width:40px;padding:0 10px 0 16px;text-align:right;color:var(--muted);opacity:.7;
+    white-space:nowrap;user-select:none;-webkit-user-select:none}
+    table.code td.ln::before{content:attr(data-n)}
+    table.code td.lc{padding:0 16px 0 10px;white-space:pre;color:var(--fg)}
+    table.code.wrap td.lc{white-space:pre-wrap;word-break:break-word}
+    table.code tr:first-child td{padding-top:8px}
+    table.code tr:last-child td{padding-bottom:8px}
+    .code-page .pl-c{color:var(--pl-c)}.code-page .pl-k{color:var(--pl-k)}.code-page .pl-s{color:var(--pl-s)}
+    .code-page .pl-c1{color:var(--pl-c1)}.code-page .pl-en{color:var(--pl-e)}.code-page .pl-v{color:var(--pl-v)}
+    .code-page .pl-ent{color:var(--pl-ent)}
+    .code-page .pl-mi1{color:var(--pl-mi);background-color:var(--pl-mi-bg)}
+    .code-page .pl-md{color:var(--pl-md);background-color:var(--pl-md-bg)}
     """
 }

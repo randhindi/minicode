@@ -1,0 +1,8 @@
+{
+  "name": "minicode",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "test": "./build.sh test" },
+  "ports": [8080, 3.5e2],
+  "owner": null
+}

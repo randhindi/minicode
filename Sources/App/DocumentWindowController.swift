@@ -7,7 +7,9 @@ import UniformTypeIdentifiers
 final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTextViewDelegate, NSToolbarDelegate, WKNavigationDelegate, WKScriptMessageHandler {
     private let splitController = NSSplitViewController()
     private var editorItem: NSSplitViewItem!
-    private let textView: NSTextView
+    private var previewItem: NSSplitViewItem!
+    private let textView: CodeTextView
+    private var colorizer: SyntaxColorizer!
     private let editorScroll: NSScrollView
     private let webView: WKWebView
     private var highlighted: (start: Int, end: Int)?
@@ -15,6 +17,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
     private var applyingFromPage = false
 
     private var pageLoaded = false
+    private var pageLayout: Page.Layout = .markdown
+    private var previewStale = false
     private var frameBeforeEditing: NSRect?
     private var expandedFrame: NSRect?
     private var pendingBody: String?
@@ -24,11 +28,12 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
 
     // Kept separately from `document`: AppKit sets that itself in addWindowController,
     // and silently skips controllers whose `document` is already set.
-    private weak var markdownDocument: MarkdownDocument?
+    private weak var textDocument: TextDocument?
 
-    init(document: MarkdownDocument, startEditing: Bool) {
-        editorScroll = NSTextView.scrollableTextView()
-        textView = editorScroll.documentView as! NSTextView
+    private var isMarkdown: Bool { textDocument?.kind.isMarkdown ?? true }
+
+    init(document: TextDocument, startEditing: Bool) {
+        (editorScroll, textView) = CodeTextView.make()
         let config = WKWebViewConfiguration()
         config.userContentController.addUserScript(WKUserScript(source: PageScript.source, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         webView = WKWebView(frame: .zero, configuration: config)
@@ -53,7 +58,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         editorItem.canCollapse = true
         editorItem.minimumThickness = 240
         editorItem.isCollapsed = !startEditing
-        let previewItem = NSSplitViewItem(viewController: previewVC)
+        previewItem = NSSplitViewItem(viewController: previewVC)
+        previewItem.canCollapse = true
         previewItem.minimumThickness = 240
         splitController.splitViewItems = [editorItem, previewItem]
         splitController.splitView.isVertical = true
@@ -69,9 +75,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         window.toolbarStyle = .unified
         window.delegate = self
         shouldCascadeWindows = true
-        windowFrameAutosaveName = "MarkdownDocument"
+        windowFrameAutosaveName = "Document"
 
-        markdownDocument = document
+        textDocument = document
         document.onReload = { [weak self] in self?.reloadFromDocument() }
         reloadFromDocument()
         if startEditing { window.makeFirstResponder(textView) }
@@ -82,24 +88,25 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
     // MARK: - Editor
 
     private func configureEditor() {
-        textView.font = .monospacedSystemFont(ofSize: 13, weight: .regular)
-        textView.textContainerInset = NSSize(width: 14, height: 18)
-        textView.isRichText = false
-        textView.importsGraphics = false
-        textView.allowsUndo = true
-        textView.usesFindBar = true
-        textView.isIncrementalSearchingEnabled = true
-        textView.isAutomaticQuoteSubstitutionEnabled = false
-        textView.isAutomaticDashSubstitutionEnabled = false
-        textView.isAutomaticTextReplacementEnabled = false
-        textView.isAutomaticSpellingCorrectionEnabled = false
-        textView.isAutomaticLinkDetectionEnabled = false
-        textView.smartInsertDeleteEnabled = false
+        textView.configure()
         textView.delegate = self
+        colorizer = SyntaxColorizer(textView: textView)
+        editorScroll.verticalRulerView = LineNumberRuler(textView: textView)
+        editorScroll.hasVerticalRuler = true
 
         editorScroll.contentView.postsBoundsChangedNotifications = true
         NotificationCenter.default.addObserver(self, selector: #selector(editorScrolled),
                                                name: NSView.boundsDidChangeNotification, object: editorScroll.contentView)
+    }
+
+    /// Markdown gets the side-by-side editor; code gets line numbers and no wrapping.
+    private func applyKind() {
+        guard let doc = textDocument else { return }
+        let kind = doc.kind
+        colorizer.language = kind.language
+        if case .code(let language) = kind { textView.wrapsLines = language == nil } else { textView.wrapsLines = true }
+        editorScroll.rulersVisible = !kind.isMarkdown
+        (editorScroll.verticalRulerView as? LineNumberRuler)?.refresh()
     }
 
     deinit { webView.configuration.userContentController.removeScriptMessageHandler(forName: "select") }
@@ -108,7 +115,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
 
     /// Editor → page. A caret highlights its block; a text selection selects the same text in the page.
     func textViewDidChangeSelection(_ notification: Notification) {
-        guard !applyingFromPage, !editorItem.isCollapsed else { return }
+        guard !applyingFromPage, !editorItem.isCollapsed, isMarkdown else { return }
         let ns = textView.string as NSString
         let sel = textView.selectedRange()
         let start = lineNumber(at: sel.location)
@@ -134,7 +141,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
 
     /// Turns click-to-select and the highlight on in the page only while the editor is showing.
     private func updateSelectionSync() {
-        webView.evaluateJavaScript("window.mdSetSync && mdSetSync(\(!editorItem.isCollapsed))")
+        webView.evaluateJavaScript("window.mdSetSync && mdSetSync(\(!editorItem.isCollapsed && isMarkdown))")
     }
 
     /// Page → editor. The page sends the block's lines, the selected text (empty for a click) and the
@@ -218,8 +225,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
     }
 
     func textDidChange(_ notification: Notification) {
-        markdownDocument?.text = textView.string
-        scheduleRender(delay: 0.12)
+        textDocument?.text = textView.string
+        colorizer.refresh(after: 0.05)
+        if previewItem.isCollapsed { previewStale = true } else { scheduleRender(delay: 0.12) }
     }
 
     // The editor's typing goes through the document's undo manager, which is
@@ -227,17 +235,19 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
     func windowWillReturnUndoManager(_ window: NSWindow) -> UndoManager? { document?.undoManager }
 
     private func reloadFromDocument() {
-        guard let doc = markdownDocument else { return }
+        guard let doc = textDocument else { return }
         if textView.string != doc.text {
-            textView.string = doc.text
+            textView.setText(doc.text)
             textView.undoManager?.removeAllActions()
         }
+        applyKind()
         scheduleRender(delay: 0)
     }
 
     /// Keeps the preview roughly aligned with the editor while you scroll it.
     @objc private func editorScrolled() {
-        guard !editorItem.isCollapsed, !suppressScrollSync, let doc = editorScroll.documentView else { return }
+        guard isMarkdown, !editorItem.isCollapsed, !previewItem.isCollapsed, !suppressScrollSync,
+              let doc = editorScroll.documentView else { return }
         let range = doc.frame.height - editorScroll.contentView.bounds.height
         guard range > 0 else { return }
         let fraction = min(max(editorScroll.contentView.bounds.minY / range, 0), 1)
@@ -248,18 +258,23 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
 
     private func scheduleRender(delay: TimeInterval) {
         renderWork?.cancel()
-        guard let doc = markdownDocument else { return }
-        let text = doc.text
+        guard let doc = textDocument else { return }
+        previewStale = false
+        let text = doc.text, kind = doc.kind, name = doc.displayName ?? ""
         let baseDir = doc.fileURL?.deletingLastPathComponent()
         let work = DispatchWorkItem { [weak self] in
-            let body = Self.render(text, baseDir: baseDir)
-            DispatchQueue.main.async { self?.show(body: body) }
+            let body: String
+            switch kind {
+            case .markdown: body = Self.renderMarkdown(text, baseDir: baseDir)
+            case .code(let language): body = CodeView.body(code: text, fileName: name, language: language)
+            }
+            DispatchQueue.main.async { self?.show(body: body, layout: kind.isMarkdown ? .markdown : .code) }
         }
         renderWork = work
         Self.renderQueue.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
-    private static func render(_ text: String, baseDir: URL?) -> String {
+    private static func renderMarkdown(_ text: String, baseDir: URL?) -> String {
         let renderer = MarkdownRenderer()
         renderer.annotateLines = true
         // Local images are inlined as data URIs so they show regardless of where the page is loaded from.
@@ -279,11 +294,13 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         return renderer.render(text)
     }
 
-    private func show(body: String) {
+    private func show(body: String, layout: Page.Layout) {
+        if pageLoaded, layout != pageLayout { pageLoaded = false; pendingBody = nil } // e.g. renamed .md → .py
         guard pageLoaded else {
             if pendingBody == nil {
-                webView.loadHTMLString(Page.html(body: body, title: markdownDocument?.displayName ?? ""),
-                                       baseURL: markdownDocument?.fileURL)
+                pageLayout = layout
+                webView.loadHTMLString(Page.html(body: body, title: textDocument?.displayName ?? "", layout: layout),
+                                       baseURL: textDocument?.fileURL)
             }
             pendingBody = body
             return
@@ -297,7 +314,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         pageLoaded = true
         updateSelectionSync()
         pendingBody = nil
-        if let latest { show(body: latest) } // catch up on edits made while the page loaded
+        if let latest { show(body: latest, layout: pageLayout) } // catch up on edits made while the page loaded
     }
 
     /// Links open in the browser; links to other Markdown files open here; `#anchors` scroll in place.
@@ -305,7 +322,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard action.navigationType == .linkActivated, let url = action.request.url else { return decisionHandler(.allow) }
         decisionHandler(.cancel)
-        if let fragment = url.fragment, url.isFileURL, url.path == markdownDocument?.fileURL?.path || url.path.isEmpty {
+        if let fragment = url.fragment, url.isFileURL, url.path == textDocument?.fileURL?.path || url.path.isEmpty {
             let id = Self.jsString(fragment.removingPercentEncoding ?? fragment)
             webView.evaluateJavaScript("document.getElementById(\(id))?.scrollIntoView({behavior: 'smooth'})")
         } else if url.isFileURL, let type = UTType(filenameExtension: url.pathExtension), type.conforms(to: UTType("net.daringfireball.markdown")!) {
@@ -325,7 +342,18 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
 
     @objc func toggleEditor(_ sender: Any?) {
         guard let window else { return }
+        if !isMarkdown { return toggleCodeEditor(in: window) }
         if editorItem.isCollapsed { showEditor(in: window) } else { hideEditor(in: window) }
+    }
+
+    /// Code: the editor replaces the read-only view (both would show the same thing).
+    private func toggleCodeEditor(in window: NSWindow) {
+        let editing = editorItem.isCollapsed
+        editorItem.isCollapsed = !editing
+        previewItem.isCollapsed = editing
+        if !editing, previewStale { scheduleRender(delay: 0) }
+        window.makeFirstResponder(editing ? textView : webView)
+        updateSelectionSync()
     }
 
     /// Splits the window in half, first growing it to at least 1600×1000 (or the screen) so both panels fit.
@@ -347,6 +375,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
             expandedFrame = window.frame
         }
         editorItem.isCollapsed = false
+        previewItem.isCollapsed = false
+        if previewStale { scheduleRender(delay: 0) }
         splitController.splitView.setPosition(splitController.splitView.bounds.width / 2, ofDividerAt: 0)
         window.makeFirstResponder(textView)
         updateSelectionSync()
@@ -354,6 +384,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
     }
 
     private func hideEditor(in window: NSWindow) {
+        previewItem.isCollapsed = false
         editorItem.isCollapsed = true
         highlighted = nil
         updateSelectionSync()
@@ -372,7 +403,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
 
     private func setZoom(_ zoom: CGFloat) {
         webView.pageZoom = min(max(zoom, 0.5), 3)
-        textView.font = .monospacedSystemFont(ofSize: 13 * webView.pageZoom, weight: .regular)
+        textView.fontSize = 13 * webView.pageZoom
     }
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool {

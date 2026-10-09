@@ -1,0 +1,12 @@
+/* Theme */
+:root { --accent: #6d4aff; }
+
+.card > a:hover, #main {
+  color: var(--accent);
+  padding: 8px 1.5rem;
+  background: rgb(0 0 0 / 50%) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .card { color: #fff; }
+}

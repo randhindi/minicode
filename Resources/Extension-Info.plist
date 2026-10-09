@@ -2,29 +2,92 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key><string>en</string>
-	<key>CFBundleExecutable</key><string>MarkdownPreviewExtension</string>
-	<key>CFBundleIdentifier</key><string>set-by-build.sh</string>
-	<key>CFBundleName</key><string>Markdown Preview</string>
-	<key>CFBundleDisplayName</key><string>Markdown Preview</string>
-	<key>CFBundlePackageType</key><string>XPC!</string>
-	<key>CFBundleShortVersionString</key><string>1.0</string>
-	<key>CFBundleVersion</key><string>1</string>
-	<key>CFBundleSupportedPlatforms</key><array><string>MacOSX</string></array>
-	<key>LSMinimumSystemVersion</key><string>12.0</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>MinicodeQuickLook</string>
+	<key>CFBundleIdentifier</key>
+	<string>set-by-build.sh</string>
+	<key>CFBundleName</key>
+	<string>Minicode</string>
+	<key>CFBundleDisplayName</key>
+	<string>Minicode</string>
+	<key>CFBundlePackageType</key>
+	<string>XPC!</string>
+	<key>CFBundleShortVersionString</key>
+	<string>set-by-build.sh</string>
+	<key>CFBundleVersion</key>
+	<string>set-by-build.sh</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>12.0</string>
 	<key>NSExtension</key>
 	<dict>
-		<key>NSExtensionPointIdentifier</key><string>com.apple.quicklook.preview</string>
-		<key>NSExtensionPrincipalClass</key><string>PreviewProvider</string>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.quicklook.preview</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>PreviewProvider</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>QLIsDataBasedPreview</key><true/>
-			<key>QLSupportsSearchableItems</key><false/>
+			<key>QLIsDataBasedPreview</key>
+			<true/>
+			<key>QLSupportsSearchableItems</key>
+			<false/>
 			<key>QLSupportedContentTypes</key>
 			<array>
 				<string>net.daringfireball.markdown</string>
 				<string>public.markdown</string>
 				<string>org.commonmark.markdown</string>
+				<string>public.source-code</string>
+				<string>public.shell-script</string>
+				<string>public.bash-script</string>
+				<string>public.zsh-script</string>
+				<string>public.python-script</string>
+				<string>public.ruby-script</string>
+				<string>public.php-script</string>
+				<string>public.perl-script</string>
+				<string>public.c-source</string>
+				<string>public.c-header</string>
+				<string>public.c-plus-plus-source</string>
+				<string>public.c-plus-plus-header</string>
+				<string>public.objective-c-source</string>
+				<string>public.objective-c-plus-plus-source</string>
+				<string>public.swift-source</string>
+				<string>com.sun.java-source</string>
+				<string>com.netscape.javascript-source</string>
+				<string>public.json</string>
+				<string>public.yaml</string>
+				<string>public.xml</string>
+				<string>public.html</string>
+				<string>public.css</string>
+				<string>public.patch-file</string>
+				<string>public.make-source</string>
+				<string>com.microsoft.typescript</string>
+				<string>io.github.randhindi.minicode.source.tsx</string>
+				<string>io.github.randhindi.minicode.source.jsx</string>
+				<string>io.github.randhindi.minicode.source.rust</string>
+				<string>io.github.randhindi.minicode.source.go</string>
+				<string>io.github.randhindi.minicode.source.solidity</string>
+				<string>io.github.randhindi.minicode.source.csharp</string>
+				<string>io.github.randhindi.minicode.source.kotlin</string>
+				<string>io.github.randhindi.minicode.source.groovy</string>
+				<string>io.github.randhindi.minicode.source.lua</string>
+				<string>io.github.randhindi.minicode.source.haskell</string>
+				<string>io.github.randhindi.minicode.source.sql</string>
+				<string>io.github.randhindi.minicode.source.scss</string>
+				<string>io.github.randhindi.minicode.source.vue</string>
+				<string>io.github.randhindi.minicode.source.toml</string>
+				<string>io.github.randhindi.minicode.source.ini</string>
+				<string>io.github.randhindi.minicode.source.proto</string>
+				<string>io.github.randhindi.minicode.source.graphql</string>
+				<string>io.github.randhindi.minicode.source.hcl</string>
+				<string>io.github.randhindi.minicode.source.cmake</string>
+				<string>io.github.randhindi.minicode.source.dockerfile</string>
+				<string>io.github.randhindi.minicode.source.jsonl</string>
+				<string>public.mpeg-2-transport-stream</string>
 			</array>
 		</dict>
 	</dict>
