@@ -23,7 +23,8 @@ final class TextDocument: NSDocument {
     }
 
     override func makeWindowControllers() {
-        addWindowController(DocumentWindowController(document: self, startEditing: fileURL == nil))
+        // Markdown opens rendered; code (and new documents) open in the editor.
+        addWindowController(DocumentWindowController(document: self, startEditing: fileURL == nil || !kind.isMarkdown))
     }
 
     override func read(from data: Data, ofType typeName: String) throws {

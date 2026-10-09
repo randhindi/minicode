@@ -60,6 +60,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTe
         editorItem.isCollapsed = !startEditing
         previewItem = NSSplitViewItem(viewController: previewVC)
         previewItem.canCollapse = true
+        previewItem.isCollapsed = startEditing && !document.kind.isMarkdown // code edits full-width
         previewItem.minimumThickness = 240
         splitController.splitViewItems = [editorItem, previewItem]
         splitController.splitView.isVertical = true
